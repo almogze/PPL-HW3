@@ -1,4 +1,4 @@
-import { add, map, zipWith } from "ramda";
+import { add, concat, map, zipWith } from "ramda";
 import { Value } from './L21-value-store';
 import { Result, makeFailure, makeOk, bind, either } from "../shared/result";
 
@@ -12,23 +12,26 @@ const setBox = <T>(b: Box<T>, v: T): void => { b[0] = v; return; }
 
 // ========================================================
 // Store datatype
+export interface emptyStore {tag: "emptyStore"}
 export interface Store {
     tag: "Store";
     vals: Box<Value>[];
 }
-
-export const isStore = ...;
-export const makeEmptyStore = ...;
+//export const makeStrExp = (s: string): StrExp => ({tag: "StrExp", val: s});
+export const isStore = (x: any): x is Store => x.tag === "Store";
+export const makeEmptyStore = (): emptyStore => ({tag: "emptyStore"});
+export const isEmptyStore = (x: any): x is emptyStore => x.tag === "emptyStore";
 export const theStore: Store = 
 export const extendStore = (s: Store, val: Value): Store =>
-    // Complete
+    ({tag: "Store", vals: concat(s.vals, [makeBox(val)])});
     
 export const applyStore = (store: Store, address: number): Result<Value> =>
-    // Complete
-
+    store.vals.length <= address ? makeFailure(`value not found ${address}`) :
+    makeOk(unbox(store.vals[address]));
     
 export const setStore = (store: Store, address: number, val: Value): void => 
-    // Complete
+    store.vals.length >= address ? setBox(store.vals[address], val) : 
+    setBox(store.vals[address], unbox(store.vals[address]));        // This is just so an error will not be thrown. It doesn't do anything.
 
 
 // ========================================================
