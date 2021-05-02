@@ -1,4 +1,4 @@
-import { add, concat, map, zipWith } from "ramda";
+import { add, any, concat, map, zipWith } from "ramda";
 import { Value } from './L21-value-store';
 import { Result, makeFailure, makeOk, bind, either } from "../shared/result";
 
@@ -12,27 +12,30 @@ const setBox = <T>(b: Box<T>, v: T): void => { b[0] = v; return; }
 
 // ========================================================
 // Store datatype
-export interface emptyStore {tag: "emptyStore"}
+//export interface emptyStore {tag: "emptyStore"}
 export interface Store {
     tag: "Store";
     vals: Box<Value>[];
 }
 //export const makeStrExp = (s: string): StrExp => ({tag: "StrExp", val: s});
 export const isStore = (x: any): x is Store => x.tag === "Store";
-export const makeEmptyStore = (): emptyStore => ({tag: "emptyStore"});
-export const isEmptyStore = (x: any): x is emptyStore => x.tag === "emptyStore";
- const theStore: Store = 
+export const makeEmptyStore = (): Store => ({tag: "Store", vals: makeBox([])});
+//export const isEmptyStore = (x: any): x is emptyStore => x.tag === "emptyStore";
+export const theStore: Store = makeEmptyStore();
 export const extendStore = (s: Store, val: Value): Store =>
-    ({tag: "Store", vals: concat(s.vals, [makeBox(val)])});
-    
+{
+    theStore.vals = theStore.vals.concat([makeBox(val)])
+    return theStore;
+    //({tag: "Store", vals: concat(s.vals, [makeBox(val)])});
+}
+
 export const applyStore = (store: Store, address: number): Result<Value> =>
     store.vals.length <= address ? makeFailure(`value not found ${address}`) :
     makeOk(unbox(store.vals[address]));
     
 export const setStore = (store: Store, address: number, val: Value): void => 
     store.vals.length >= address ? setBox(store.vals[address], val) : 
-    setBox(store.vals[address], unbox(store.vals[address]));        // This is just so an error will not be thrown. It doesn't do anything.
-
+    // Find "harmless" void.
 
 // ========================================================
 // Environment data type
@@ -58,7 +61,7 @@ const makeGlobalEnv = (): GlobalEnv =>
 export const isGlobalEnv = (x: any): x is GlobalEnv => x.tag === "GlobalEnv";
 
 // There is a single mutable value in the type Global-env
-export const theGlobalEnv = makeGlobalEnv();
+export const theGlobalEnv: GlobalEnv = makeGlobalEnv();
 
 export const makeExtEnv = (vs: string[], addresses: number[], env: Env): ExtEnv =>
     ({tag: "ExtEnv", vars: vs, addresses: addresses, nextEnv: env});

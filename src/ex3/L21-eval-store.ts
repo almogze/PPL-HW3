@@ -87,5 +87,5 @@ const evalLet = (exp: LetExp, env: Env): Result<Value> => {
         const addresses = ...
         const newEnv = makeExtEnv(vars, addresses, env)
         return evalSequence(exp.body, newEnv);
-    })
+    });
 }
