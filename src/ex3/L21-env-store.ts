@@ -21,7 +21,7 @@ export interface Store {
 export const isStore = (x: any): x is Store => x.tag === "Store";
 export const makeEmptyStore = (): emptyStore => ({tag: "emptyStore"});
 export const isEmptyStore = (x: any): x is emptyStore => x.tag === "emptyStore";
-export const theStore: Store = 
+ const theStore: Store = 
 export const extendStore = (s: Store, val: Value): Store =>
     ({tag: "Store", vals: concat(s.vals, [makeBox(val)])});
     
