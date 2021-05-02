@@ -24,8 +24,8 @@ export const makeEmptyStore = (): Store => ({tag: "Store", vals: makeBox([])});
 export const theStore: Store = makeEmptyStore();
 export const extendStore = (s: Store, val: Value): Store =>
 {
-    theStore.vals = theStore.vals.concat([makeBox(val)])
-    return theStore;
+    s.vals = s.vals.concat([makeBox(val)])
+    return s;
     //({tag: "Store", vals: concat(s.vals, [makeBox(val)])});
 }
 
@@ -34,8 +34,8 @@ export const applyStore = (store: Store, address: number): Result<Value> =>
     makeOk(unbox(store.vals[address]));
     
 export const setStore = (store: Store, address: number, val: Value): void => 
-    store.vals.length >= address ? setBox(store.vals[address], val) : 
-    // Find "harmless" void.
+    store.vals.length > address ? setBox(store.vals[address], val) : 
+    setBox(store.vals[0], unbox(store.vals[0]))     // This is just to avoid compilation error.
 
 // ========================================================
 // Environment data type
@@ -76,10 +76,14 @@ export const applyEnv = (env: Env, v: string): Result<number> =>
     applyExtEnv(env, v);
 
 const applyGlobalEnv = (env: GlobalEnv, v: string): Result<number> => 
-    // Complete
+    unbox(env.vars).includes(v) ? makeOk(unbox(env.addresses)[unbox(env.vars).indexOf(v)]) :
+    makeFailure(`could not find variable ${v}`)
 
 export const globalEnvAddBinding = (v: string, addr: number): void =>
-    // Complete
+{
+    setBox(theGlobalEnv.vars, unbox(theGlobalEnv.vars).concat([v]))
+    setBox(theGlobalEnv.addresses, unbox(theGlobalEnv.addresses).concat([addr]))
+}
 
 const applyExtEnv = (env: ExtEnv, v: string): Result<number> =>
     env.vars.includes(v) ? makeOk(env.addresses[env.vars.indexOf(v)]) :
