@@ -21,7 +21,7 @@ const applicativeEval = (exp: CExp, env: Env): Result<Value> =>
     isBoolExp(exp) ? makeOk(exp.val) :
     isStrExp(exp) ? makeOk(exp.val) :
     isPrimOp(exp) ? makeOk(exp) :
-    isVarRef(exp) ? ...§ :
+    isVarRef(exp) ? applyEnv(env, exp.var) :
     isLitExp(exp) ? makeOk(exp.val as Value) :
     isIfExp(exp) ? evalIf(exp, env) :
     isProcExp(exp) ? evalProc(exp, env) :
