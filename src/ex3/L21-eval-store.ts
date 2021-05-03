@@ -6,13 +6,12 @@ import { find, map, reduce, repeat, zipWith, range } from "ramda";
 import { isBoolExp, isCExp, isLitExp, isNumExp, isPrimOp, isStrExp, isVarRef,
          isAppExp, isDefineExp, isIfExp, isLetExp, isProcExp, Binding, VarDecl, CExp, Exp, IfExp, LetExp, ProcExp, Program,
          parseL21Exp, DefineExp, isSetExp, SetExp} from "./L21-ast";
-import { applyEnv, makeExtEnv, Env, Store, setStore, extendStore, ExtEnv, applyEnvStore, theGlobalEnv, globalEnvAddBinding, theStore, applyStore  } from "./L21-env-store";
+import { applyEnv, makeExtEnv, Env, Store, setStore, extendStore, ExtEnv, applyEnvStore, theGlobalEnv, globalEnvAddBinding, theStore, applyStore, makeBox } from "./L21-env-store";
 import { isClosure, makeClosure, Closure, Value } from "./L21-value-store";
 import { applyPrimitive } from "./evalPrimitive-store";
 import { first, rest, isEmpty } from "../shared/list";
 import { Result, bind, safe2, mapResult, makeFailure, makeOk } from "../shared/result";
 import { parse as p } from "../shared/parser";
-import { makeBox } from "../shared/box";
 
 // ========================================================
 // Eval functions
@@ -53,7 +52,8 @@ const applyProcedure = (proc: Value, args: Value[]): Result<Value> =>
 const applyClosure = (proc: Closure, args: Value[]): Result<Value> => {
     const vars = map((v: VarDecl) => v.var, proc.params);
     reduce(extendStore, theStore, args);
-    const addresses = range(theStore.vals.length - args.length, theStore.vals.length - 1);
+    const addresses = range(theStore.vals.length - args.length, theStore.vals.length);
+    
     const newEnv: ExtEnv = makeExtEnv(vars, addresses, proc.env)
     return evalSequence(proc.body, newEnv);
 }
@@ -69,13 +69,11 @@ const evalCExps = (first: Exp, rest: Exp[], env: Env): Result<Value> =>
     isCExp(first) ? bind(applicativeEval(first, env), _ => evalSequence(rest, env)) :
     first;
 
-
 const evalDefineExps = (def: DefineExp, exps: Exp[]): Result<Value> =>
     bind(applicativeEval(def.val, theGlobalEnv),
-            (rhs: Value) => {   extendStore(theStore, rhs);
-                                globalEnvAddBinding(def.var.var, theStore.vals.length);
+            (rhs: Value) => { extendStore(theStore, rhs)
+                                globalEnvAddBinding(def.var.var, theStore.vals.length-1);
                                 return evalSequence(exps, theGlobalEnv); });
-
 
 // Main program
 // L2-BOX @@ Use GE instead of empty-env

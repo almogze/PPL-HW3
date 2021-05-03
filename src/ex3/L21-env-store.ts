@@ -6,7 +6,7 @@ import { Result, makeFailure, makeOk, bind, either } from "../shared/result";
 // Box datatype
 // Encapsulate mutation in a single type.
 type Box<T> = T[];
-const makeBox = <T>(x: T): Box<T> => ([x]);
+export const makeBox = <T>(x: T): Box<T> => ([x]);
 const unbox = <T>(b: Box<T>): T => b[0];
 const setBox = <T>(b: Box<T>, v: T): void => { b[0] = v; return; }
 
@@ -92,6 +92,3 @@ const applyExtEnv = (env: ExtEnv, v: string): Result<number> =>
 export const applyEnvStore = (env: Env, v: string): Result<Value> => 
       bind(applyEnv(env, v),
          (addr: number) => applyStore(theStore, addr)); 
-
-
-         
