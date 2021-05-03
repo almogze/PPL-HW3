@@ -2,16 +2,17 @@
 // L2 with mutation (set!) and env-box model
 // Direct evaluation of letrec with mutation, define supports mutual recursion.
 
-import { find, map, reduce, repeat, zipWith } from "ramda";
+import { find, map, reduce, repeat, zipWith, range } from "ramda";
 import { isBoolExp, isCExp, isLitExp, isNumExp, isPrimOp, isStrExp, isVarRef,
          isAppExp, isDefineExp, isIfExp, isLetExp, isProcExp, Binding, VarDecl, CExp, Exp, IfExp, LetExp, ProcExp, Program,
          parseL21Exp, DefineExp, isSetExp, SetExp} from "./L21-ast";
-import { applyEnv, makeExtEnv, Env, Store, setStore, extendStore, ExtEnv, applyEnvStore, theGlobalEnv, globalEnvAddBinding, theStore, applyStore } from "./L21-env-store";
+import { applyEnv, makeExtEnv, Env, Store, setStore, extendStore, ExtEnv, applyEnvStore, theGlobalEnv, globalEnvAddBinding, theStore, applyStore  } from "./L21-env-store";
 import { isClosure, makeClosure, Closure, Value } from "./L21-value-store";
 import { applyPrimitive } from "./evalPrimitive-store";
 import { first, rest, isEmpty } from "../shared/list";
 import { Result, bind, safe2, mapResult, makeFailure, makeOk } from "../shared/result";
 import { parse as p } from "../shared/parser";
+import { makeBox } from "../shared/box";
 
 // ========================================================
 // Eval functions
@@ -51,8 +52,8 @@ const applyProcedure = (proc: Value, args: Value[]): Result<Value> =>
 
 const applyClosure = (proc: Closure, args: Value[]): Result<Value> => {
     const vars = map((v: VarDecl) => v.var, proc.params);
-    const addresses: number[] = // array of addresses of the new variables's in the store that contains their values.
-    
+    reduce(extendStore, theStore, args);
+    const addresses = range(theStore.vals.length - args.length, theStore.vals.length - 1);
     const newEnv: ExtEnv = makeExtEnv(vars, addresses, proc.env)
     return evalSequence(proc.body, newEnv);
 }
@@ -70,7 +71,8 @@ const evalCExps = (first: Exp, rest: Exp[], env: Env): Result<Value> =>
 
 const evalDefineExps = (def: DefineExp, exps: Exp[]): Result<Value> =>
     bind(applicativeEval(def.val, theGlobalEnv),
-            (rhs: Value) => { globalEnvAddBinding(def.var.var, rhs);
+            (rhs: Value) => {   extendStore(theStore, rhs);
+                                globalEnvAddBinding(def.var.var, theStore.vals.indexOf(makeBox(rhs)));
                                 return evalSequence(exps, theGlobalEnv); });
 
 // Main program
@@ -89,12 +91,7 @@ const evalLet = (exp: LetExp, env: Env): Result<Value> => {
 
     return bind(vals, (vals: Value[]) => {
         reduce(extendStore, theStore, vals);
-        
-        const temp = repeat(theStore.vals.length - vals.length, vals.length);
-        const addresses = zipWith((a: number, b: number) => a + b,temp, temp );
-        
-
-
+        const addresses = range(theStore.vals.length - vals.length, theStore.vals.length - 1);
         const newEnv = makeExtEnv(vars, addresses, env)
         return evalSequence(exp.body, newEnv);
     });
