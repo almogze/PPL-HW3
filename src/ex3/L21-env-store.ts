@@ -88,3 +88,9 @@ export const globalEnvAddBinding = (v: string, addr: number): void =>
 const applyExtEnv = (env: ExtEnv, v: string): Result<number> =>
     env.vars.includes(v) ? makeOk(env.addresses[env.vars.indexOf(v)]) :
     applyEnv(env.nextEnv, v);
+
+
+export const applyEnvStore = (env: Env, v: string): Result<Value> => 
+      bind(applyEnv(env, v),
+         (addr: number) => applyStore(theStore, addr)); 
+
