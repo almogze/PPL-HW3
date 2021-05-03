@@ -93,3 +93,5 @@ export const applyEnvStore = (env: Env, v: string): Result<Value> =>
       bind(applyEnv(env, v),
          (addr: number) => applyStore(theStore, addr)); 
 
+
+         
