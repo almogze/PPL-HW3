@@ -2,7 +2,7 @@
 // L2 with mutation (set!) and env-box model
 // Direct evaluation of letrec with mutation, define supports mutual recursion.
 
-import { find, map, reduce, repeat, zipWith } from "ramda";
+import { find, map, reduce, repeat, zipWith, range } from "ramda";
 import { isBoolExp, isCExp, isLitExp, isNumExp, isPrimOp, isStrExp, isVarRef,
          isAppExp, isDefineExp, isIfExp, isLetExp, isProcExp, Binding, VarDecl, CExp, Exp, IfExp, LetExp, ProcExp, Program,
          parseL21Exp, DefineExp, isSetExp, SetExp} from "./L21-ast";
@@ -51,7 +51,8 @@ const applyProcedure = (proc: Value, args: Value[]): Result<Value> =>
 
 const applyClosure = (proc: Closure, args: Value[]): Result<Value> => {
     const vars = map((v: VarDecl) => v.var, proc.params);
-    const addresses: number[] = // array of addresses of the new variables's in the store that contains their values.
+    reduce(extendStore, theStore, args);
+    const addresses = range(theStore.vals.length - args.length, theStore.vals.length - 1);
     
     const newEnv: ExtEnv = makeExtEnv(vars, addresses, proc.env)
     return evalSequence(proc.body, newEnv);
