@@ -19,7 +19,7 @@ export interface Store {
 }
 //export const makeStrExp = (s: string): StrExp => ({tag: "StrExp", val: s});
 export const isStore = (x: any): x is Store => x.tag === "Store";
-export const makeEmptyStore = (): Store => ({tag: "Store", vals: makeBox([])});
+export const makeEmptyStore = (): Store => ({tag: "Store", vals: []});
 //export const isEmptyStore = (x: any): x is emptyStore => x.tag === "emptyStore";
 export const theStore: Store = makeEmptyStore();
 export const extendStore = (s: Store, val: Value): Store =>

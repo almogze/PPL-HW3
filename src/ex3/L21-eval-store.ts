@@ -69,11 +69,13 @@ const evalCExps = (first: Exp, rest: Exp[], env: Env): Result<Value> =>
     isCExp(first) ? bind(applicativeEval(first, env), _ => evalSequence(rest, env)) :
     first;
 
+
 const evalDefineExps = (def: DefineExp, exps: Exp[]): Result<Value> =>
     bind(applicativeEval(def.val, theGlobalEnv),
             (rhs: Value) => {   extendStore(theStore, rhs);
-                                globalEnvAddBinding(def.var.var, theStore.vals.indexOf(makeBox(rhs)));
+                                globalEnvAddBinding(def.var.var, theStore.vals.length);
                                 return evalSequence(exps, theGlobalEnv); });
+
 
 // Main program
 // L2-BOX @@ Use GE instead of empty-env
@@ -91,7 +93,7 @@ const evalLet = (exp: LetExp, env: Env): Result<Value> => {
 
     return bind(vals, (vals: Value[]) => {
         reduce(extendStore, theStore, vals);
-        const addresses = range(theStore.vals.length - vals.length, theStore.vals.length - 1);
+        const addresses = range(theStore.vals.length - vals.length, theStore.vals.length);
         const newEnv = makeExtEnv(vars, addresses, env)
         return evalSequence(exp.body, newEnv);
     });
