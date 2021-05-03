@@ -6,7 +6,7 @@ import { Result, makeFailure, makeOk, bind, either } from "../shared/result";
 // Box datatype
 // Encapsulate mutation in a single type.
 type Box<T> = T[];
-const makeBox = <T>(x: T): Box<T> => ([x]);
+export const makeBox = <T>(x: T): Box<T> => ([x]);
 const unbox = <T>(b: Box<T>): T => b[0];
 const setBox = <T>(b: Box<T>, v: T): void => { b[0] = v; return; }
 
