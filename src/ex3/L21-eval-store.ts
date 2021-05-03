@@ -52,7 +52,7 @@ const applyProcedure = (proc: Value, args: Value[]): Result<Value> =>
 const applyClosure = (proc: Closure, args: Value[]): Result<Value> => {
     const vars = map((v: VarDecl) => v.var, proc.params);
     reduce(extendStore, theStore, args);
-    const addresses = range(theStore.vals.length - args.length, theStore.vals.length - 1);
+    const addresses = range(theStore.vals.length - args.length, theStore.vals.length);
     
     const newEnv: ExtEnv = makeExtEnv(vars, addresses, proc.env)
     return evalSequence(proc.body, newEnv);
@@ -72,7 +72,7 @@ const evalCExps = (first: Exp, rest: Exp[], env: Env): Result<Value> =>
 const evalDefineExps = (def: DefineExp, exps: Exp[]): Result<Value> =>
     bind(applicativeEval(def.val, theGlobalEnv),
             (rhs: Value) => { extendStore(theStore, rhs)
-                                globalEnvAddBinding(def.var.var, theStore.vals.indexOf(makeBox(rhs)));
+                                globalEnvAddBinding(def.var.var, theStore.vals.length-1);
                                 return evalSequence(exps, theGlobalEnv); });
 
 // Main program
@@ -91,12 +91,7 @@ const evalLet = (exp: LetExp, env: Env): Result<Value> => {
 
     return bind(vals, (vals: Value[]) => {
         reduce(extendStore, theStore, vals);
-        
-        const temp = repeat(theStore.vals.length - vals.length, vals.length);
-        const addresses = zipWith((a: number, b: number) => a + b,temp, temp );
-        
-
-
+        const addresses = range(theStore.vals.length - vals.length, theStore.vals.length);
         const newEnv = makeExtEnv(vars, addresses, env)
         return evalSequence(exp.body, newEnv);
     });

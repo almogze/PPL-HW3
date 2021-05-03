@@ -8,9 +8,9 @@ import { makeOk, bind, isFailure } from '../src/shared/result';
 
 
 describe('L21 Store', () => {
-    const s: Store = makeEmptyStore()
-    const s1 = extendStore(s, 1);
-    const s2 = extendStore(s1, "a");
+        const s: Store = makeEmptyStore()
+        const s1 = extendStore(s, 1);
+        const s2 = extendStore(s1, "a");
 
     it('identifies the store', () => {
         expect(isStore(theStore)).to.be.true;
