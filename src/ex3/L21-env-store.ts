@@ -17,16 +17,13 @@ export interface Store {
     tag: "Store";
     vals: Box<Value>[];
 }
-//export const makeStrExp = (s: string): StrExp => ({tag: "StrExp", val: s});
 export const isStore = (x: any): x is Store => x.tag === "Store";
 export const makeEmptyStore = (): Store => ({tag: "Store", vals: []});
-//export const isEmptyStore = (x: any): x is emptyStore => x.tag === "emptyStore";
 export const theStore: Store = makeEmptyStore();
 export const extendStore = (s: Store, val: Value): Store =>
 {
     s.vals = s.vals.concat([makeBox(val)])
     return s;
-    //({tag: "Store", vals: concat(s.vals, [makeBox(val)])});
 }
 
 export const applyStore = (store: Store, address: number): Result<Value> =>

@@ -71,7 +71,6 @@ export interface LetExp {tag: "LetExp"; bindings: Binding[]; body: CExp[]; }
 // L3
 export interface LitExp {tag: "LitExp"; val: SExpValue; }
 
-//Added
 export interface SetExp {tag: "SetExp"; variable: VarRef; val: CExp; }
 
 // To help parser - define a type for reserved key words.
@@ -117,7 +116,6 @@ export const makeLetExp = (bindings: Binding[], body: CExp[]): LetExp =>
 export const makeLitExp = (val: SExpValue): LitExp =>
     ({tag: "LitExp", val: val});
 
-//Added
 export const makeSetExp = (variable: VarRef, val: CExp): SetExp =>
     ({tag: "SetExp", variable: variable, val: val})
 
@@ -140,7 +138,6 @@ export const isLetExp = (x: any): x is LetExp => x.tag === "LetExp";
 // L3
 export const isLitExp = (x: any): x is LitExp => x.tag === "LitExp";
 
-//Added
 export const isSetExp = (x: any): x is SetExp => x.tag === "SetExp";
 
 // Type predicates for type unions
